@@ -72,9 +72,9 @@ fn Token! tokenize_string(String input, int* i)
 
 	token.type = FUNCTION;
 
-	if (!input[*i].is_alpha()) return TokensError.INVALID_STRING_PARSED?;
+	if (!input[*i].is_alpha() && !(input[*i] == '_')) return TokensError.INVALID_STRING_PARSED?;
 
-	while (*i < input.len && input[*i].is_alpha())
+	while (*i < input.len && (input[*i].is_alpha() || input[*i] == '_'))
 	{
 		string.append(input[*i]);
 		*i = *i + 1;
