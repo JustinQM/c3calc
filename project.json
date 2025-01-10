@@ -1,0 +1,9 @@
+{
+  "sources": [ "src/**" ],
+  "output": "build",
+  "targets": {
+    "c3calc": {
+      "type": "executable",
+    },
+  },
+}
