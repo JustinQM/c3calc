@@ -12,15 +12,42 @@ fn int main()
 
 	rl::set_target_fps(60);
 
+	DString input;
+	DString result;
+	defer(input.free());
+	defer(result.free());
 	while(!rl::window_should_close())
 	{
-		int key = rl::get_key_pressed();
-		if(key)
+		int key = rl::get_char_pressed();
+		while(key > 0)
 		{
-			io::printfn("Got Key Pressed: %d",key); //enums in c3... KeyboardKey.KEY_ONE.keycode ... wtf?
+			input.append_char((char)key);
+			key = rl::get_char_pressed();
+		}
+		if(rl::is_key_pressed(KeyboardKey.KEY_BACKSPACE.keycode) && input.len() >= 1)
+		{
+			input.delete(input.len()-1);
+		}
+		if(rl::is_key_pressed(KeyboardKey.KEY_ENTER.keycode))
+		{
+			result.clear();
+			Result ret_val = c3eval::evaluate(input.str_view());
+			if(ret_val.is_floating)
+			{
+				result.appendf("%f",ret_val.fvalue);
+				io::printfn("%f",ret_val.fvalue);
+			}
+			else
+			{
+				result.appendf("%d",ret_val.value);
+				io::printfn("%d",ret_val.value);
+			}
 		}
 
 		rl::begin_drawing();
+			rl::clear_background(Color{0,0,0,255});
+			rl::draw_text(input.zstr_view(),200,200,18,Color{255,255,255,255});
+			rl::draw_text(result.zstr_view(),200,400,18,Color{255,255,255,255});
 		rl::end_drawing();
 	}
 

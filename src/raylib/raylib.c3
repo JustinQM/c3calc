@@ -41,6 +41,14 @@ extern fn void end_scissor_mode() @extern("EndScissorMode");                    
 //extern fn void begin_vr_stereo_mode(VrStereoConfig config) @extern("BeginVrStereoMode");              // Begin stereo rendering (requires VR simulator)
 //extern fn void end_vr_stereo_mode() @extern("EndVrStereoMode");                                 // End stereo rendering (requires VR simulator)
 
+// Text drawing functions
+extern fn void draw_fps(CInt posX, CInt posY) @extern("DrawFPS");                                                     // Draw current FPS
+extern fn void draw_text(char *text, CInt posX, CInt posY, CInt fontSize, Color color) @extern("DrawText");       // Draw text (using default font)
+extern fn void draw_text_ex(Font font,  char *text, Vector2 position, float fontSize, float spacing, Color tint) @extern("DrawTextEx"); // Draw text using font and additional parameters
+extern fn void draw_text_pro(Font font,  char *text, Vector2 position, Vector2 origin, float rotation, float fontSize, float spacing, Color tint) @extern("DrawTextPro"); // Draw text using Font and pro parameters (rotation)
+extern fn void draw_text_codepoint(Font font, CInt codepoint, Vector2 position, float fontSize, Color tint) @extern("DrawTextCodepoint"); // Draw one character (codepoint)
+extern fn void draw_text_codepoints(Font font,  CInt *codepoints, CInt codepointCount, Vector2 position, float fontSize, float spacing, Color tint) @extern("DrawTextCodepoints"); // Draw multiple character (codepoint)
+
 struct Camera2D {
     Vector2 offset;         // Camera offset (displacement from target)
     Vector2 target;         // Camera target (rotation and zoom origin)
@@ -81,6 +89,45 @@ struct Texture {
     uint id;        // OpenGL texture id
     int width;              // Texture base width
     int height;             // Texture base height
+    int mipmaps;            // Mipmap levels, 1 by default
+    int format;             // Data format (PixelFormat type)
+}
+
+// Texture2D, same as Texture
+def Texture2D = Texture;
+
+// Font, font texture and GlyphInfo array data
+struct Font {
+    int baseSize;           // Base size (default chars height)
+    int glyphCount;         // Number of glyph characters
+    int glyphPadding;       // Padding around the glyph characters
+    Texture2D texture;      // Texture atlas containing the glyphs
+    Rectangle *recs;        // Rectangles in texture for the glyphs
+    GlyphInfo *glyphs;      // Glyphs info data
+}
+
+// Rectangle, 4 components
+struct Rectangle {
+    float x;                // Rectangle top-left corner position x
+    float y;                // Rectangle top-left corner position y
+    float width;            // Rectangle width
+    float height;           // Rectangle height
+}
+
+// GlyphInfo, font characters glyphs info
+struct GlyphInfo {
+    int value;              // Character value (Unicode)
+    int offsetX;            // Character offset X when drawing
+    int offsetY;            // Character offset Y when drawing
+    int advanceX;           // Character advance position X
+    Image image;            // Character image data
+}
+
+// Image, pixel data stored in CPU memory (RAM)
+struct Image {
+    void *data;             // Image raw data
+    int width;              // Image base width
+    int height;             // Image base height
     int mipmaps;            // Mipmap levels, 1 by default
     int format;             // Data format (PixelFormat type)
 }
