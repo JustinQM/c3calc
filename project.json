@@ -1,5 +1,7 @@
 {
   "sources": [ "src/**" ],
+  "dependencies": [ "raylib" ],
+  "dependency-search-paths": [ "./lib" ],
   "output": "build",
   "targets": {
     "c3calc": {
