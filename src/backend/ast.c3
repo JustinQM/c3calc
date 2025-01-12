@@ -235,10 +235,10 @@ fn ASTNode*! Parser.parse_primary(&self)
 			func_node.function.args.push(arg);
 			arg = self.parse()!; //call back to begining to parse more args
 		}
-		if(self.get_current_token().type == CLOSE_PAREN)
+		/*if(self.get_current_token().type == CLOSE_PAREN)
 		{
 			self.advance()!!;
-		}
+		}*/
 		func_node.function.args.push(arg);
 		return func_node;
 	}

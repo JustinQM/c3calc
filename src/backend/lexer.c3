@@ -156,7 +156,7 @@ fn Tokens lexer(String input)
 					continue;
 				}
 				//negative number
-				else if (i == 0 || !input[i-1].is_digit())
+				else if (i == 0 || (!input[i-1].is_digit() && input[i-1] != ')') )
 				{
 					//consume - and create number
 					token = tokenize_number(input,&i)!!;

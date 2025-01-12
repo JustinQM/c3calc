@@ -49,6 +49,12 @@ extern fn void draw_text_pro(Font font,  char *text, Vector2 position, Vector2 o
 extern fn void draw_text_codepoint(Font font, CInt codepoint, Vector2 position, float fontSize, Color tint) @extern("DrawTextCodepoint"); // Draw one character (codepoint)
 extern fn void draw_text_codepoints(Font font,  CInt *codepoints, CInt codepointCount, Vector2 position, float fontSize, float spacing, Color tint) @extern("DrawTextCodepoints"); // Draw multiple character (codepoint)
 
+//Drawing
+extern fn void draw_rectange(CInt posX, CInt posY, CInt width, CInt height, Color color) @extern("DrawRectangle");                        // Draw a color-filled rectangle
+extern fn void draw_rectange_v(Vector2 position, Vector2 size, Color color) @extern("DrawRectangleV");                                  // Draw a color-filled rectangle (Vector version)
+extern fn void draw_rectange_rec(Rectangle rec, Color color) @extern("DrawRectangleRec");                                                 // Draw a color-filled rectangle
+extern fn void draw_rectange_pro(Rectangle rec, Vector2 origin, float rotation, Color color) @extern("DrawRectanglePro");                 // Draw a color-filled rectangle with pro parameters
+
 struct Camera2D {
     Vector2 offset;         // Camera offset (displacement from target)
     Vector2 target;         // Camera target (rotation and zoom origin)
