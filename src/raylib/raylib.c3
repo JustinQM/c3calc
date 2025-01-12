@@ -41,6 +41,19 @@ extern fn void end_scissor_mode() @extern("EndScissorMode");                    
 //extern fn void begin_vr_stereo_mode(VrStereoConfig config) @extern("BeginVrStereoMode");              // Begin stereo rendering (requires VR simulator)
 //extern fn void end_vr_stereo_mode() @extern("EndVrStereoMode");                                 // End stereo rendering (requires VR simulator)
 
+// Font loading/unloading functions
+extern fn Font get_font_default() @extern("GetFontDefault");                                                            // Get the default Font
+extern fn Font load_font(char *fileName) @extern("LoadFont");                                                  // Load font from file into GPU memory 
+extern fn Font load_font_ex(char *fileName, CInt fontSize, CInt *codepoints, CInt codepointCount) @extern("LoadFontEx"); // Load font from file with extended parameters, use NULL for codepoints and 0 for codepointCount to load the default character set, font size is provided in pixels height
+extern fn Font load_font_from_image(Image image, Color key, CInt firstChar) @extern("LoadFontFromImage");                        // Load font from Image (XNA style)
+extern fn Font load_font_from_memory(char *fileType, char *fileData, CInt dataSize, CInt fontSize, CInt *codepoints, CInt codepointCount) @extern("LoadFontFromMemory"); // Load font from memory buffer, fileType refers to extension: i.e. '.ttf'
+extern fn bool is_font_valid(Font font) @extern("IsFontValid");                                                          // Check if a font is valid (font data loaded, WARNING: GPU texture not checked)
+extern fn GlyphInfo *load_font_data(char *fileData, CInt dataSize, CInt fontSize, CInt *codepoints, CInt codepointCount, CInt type) @extern("LoadFontData"); // Load font data for further use
+extern fn Image gen_image_font_atlas(GlyphInfo *glyphs, Rectangle **glyphRecs, CInt glyphCount, CInt fontSize, CInt padding, CInt packMethod) @extern("GenImageFontAtlas"); // Generate image font atlas using chars info
+extern fn void unload_font_data(GlyphInfo *glyphs, CInt glyphCount) @extern("UnloadFontData");                               // Unload font chars info data (RAM)
+extern fn void unload_font(Font font) @extern("UnloadFont");                                                           // Unload font from GPU memory (VRAM)
+extern fn bool export_font_as_code(Font font, char *fileName) @extern("ExportFontAsCode");                               // Export font as code file, returns true on success
+
 // Text drawing functions
 extern fn void draw_fps(CInt posX, CInt posY) @extern("DrawFPS");                                                     // Draw current FPS
 extern fn void draw_text(char *text, CInt posX, CInt posY, CInt fontSize, Color color) @extern("DrawText");       // Draw text (using default font)
@@ -48,6 +61,8 @@ extern fn void draw_text_ex(Font font,  char *text, Vector2 position, float font
 extern fn void draw_text_pro(Font font,  char *text, Vector2 position, Vector2 origin, float rotation, float fontSize, float spacing, Color tint) @extern("DrawTextPro"); // Draw text using Font and pro parameters (rotation)
 extern fn void draw_text_codepoint(Font font, CInt codepoint, Vector2 position, float fontSize, Color tint) @extern("DrawTextCodepoint"); // Draw one character (codepoint)
 extern fn void draw_text_codepoints(Font font,  CInt *codepoints, CInt codepointCount, Vector2 position, float fontSize, float spacing, Color tint) @extern("DrawTextCodepoints"); // Draw multiple character (codepoint)
+extern fn CInt measure_text(char *text, CInt fontSize) @extern("MeasureText");                                      // Measure string width for default font
+extern fn Vector2 measure_text_ex(Font font, char *text, float fontSize, float spacing) @extern("MeasureTextEx");    // Measure string size for Font
 
 //Drawing
 extern fn void draw_rectange(CInt posX, CInt posY, CInt width, CInt height, Color color) @extern("DrawRectangle");                        // Draw a color-filled rectangle
