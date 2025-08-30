@@ -12,19 +12,19 @@ fn int main()
 	const int PADDING = WINDOW_WIDTH/10;
 
 	//Screen Math
-	Vector2 screen_pos = Vector2{PADDING,PADDING};
-	Vector2 screen_size = Vector2{WINDOW_WIDTH-PADDING*2,WINDOW_HEIGHT/2-PADDING};
-	Color screen_color = Color{216,238,179,255};
+	Vector2 screen_pos = (Vector2){PADDING,PADDING};
+	Vector2 screen_size = (Vector2){WINDOW_WIDTH-PADDING*2,WINDOW_HEIGHT/2-PADDING};
+	Color screen_color = (Color){216,238,179,255};
 
 	//Text
-	Color text_color = Color{0,0,0,255};
+	Color text_color = (Color){0,0,0,255};
 	int text_size = 24;
 	int text_screen_padding = 5;
 
 	//Cursor
-	Color cursor_color = Color{30,30,30,255};
-	Vector2 cursor_size = Vector2{(float)text_size/2,(float)text_size/8};
-	Vector2 cursor_pos = Vector2{screen_pos.x + text_screen_padding,screen_pos.y+(float)text_size/4*3};
+	Color cursor_color = (Color){30,30,30,255};
+	Vector2 cursor_size = (Vector2){(float)text_size/2,(float)text_size/8};
+	Vector2 cursor_pos = (Vector2){screen_pos.x + text_screen_padding,screen_pos.y+(float)text_size/4*3};
 
 	rl::init_window(WINDOW_WIDTH,WINDOW_HEIGHT,"c3calc");
 	defer(rl::close_window());
@@ -81,7 +81,7 @@ fn int main()
 		//DRAW LOOP
 		rl::begin_drawing();
 			rl::draw_fps(0,0);
-			rl::clear_background(Color{0,0,0,255});
+			rl::clear_background((Color){0,0,0,255});
 			rl::draw_rectange_v(screen_pos,screen_size,screen_color);
 			if(!((int)time % 2 == 0 && time_since_last_input > 0.5))
 			{
@@ -102,4 +102,4 @@ fn int main()
 	String test_input = "atan(cos(sin(3.14/2)+7)+5) + (8*8+5)) % (18*2 + (12*3-1))";
 	*/
 	return 0;
-} 
+}

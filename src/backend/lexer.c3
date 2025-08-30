@@ -18,11 +18,9 @@ enum TokenType {
 	UNKNOWN,
 }
 
-fault TokensError {
-	MAXIMUM_TOKENS_REACHED,
-	INVALID_NUMBER_PARSED,
-	INVALID_STRING_PARSED,
-}
+faultdef MAXIMUM_TOKENS_REACHED;
+faultdef INVALID_NUMBER_PARSED;
+faultdef INVALID_STRING_PARSED;
 
 struct Token {
 	TokenType type;
@@ -34,9 +32,9 @@ struct Tokens {
 	int len;
 }
 
-fn void! Tokens.push(&self, Token token)
+fn void? Tokens.push(&self, Token token)
 {
-	if (self.len - 1 >= MAXIMUM_TOKENS) return TokensError.MAXIMUM_TOKENS_REACHED?;
+	if (self.len - 1 >= MAXIMUM_TOKENS) return MAXIMUM_TOKENS_REACHED?;
 	self.tokens[self.len] = token;
 	self.len++;
 }
@@ -51,7 +49,7 @@ fn String char_to_string(char c)
 	DString ret;
 	defer(ret.free());
 	ret.append(c);
-	return ret.copy_str();
+	return ret.copy_str(mem);
 }
 
 fn bool contains_char(char c, char[] array)
@@ -64,7 +62,7 @@ fn bool contains_char(char c, char[] array)
 	return false;
 }
 
-fn Token! tokenize_string(String input, int* i)
+fn Token? tokenize_string(String input, int* i)
 {
 	Token token = {};
 	DString string;
@@ -72,7 +70,7 @@ fn Token! tokenize_string(String input, int* i)
 
 	token.type = FUNCTION;
 
-	if (!input[*i].is_alpha() && !(input[*i] == '_')) return TokensError.INVALID_STRING_PARSED?;
+	if (!input[*i].is_alpha() && !(input[*i] == '_')) return INVALID_STRING_PARSED?;
 
 	while (*i < input.len && (input[*i].is_alpha() || input[*i] == '_'))
 	{
@@ -80,11 +78,11 @@ fn Token! tokenize_string(String input, int* i)
 		*i = *i + 1;
 	}
 	*i = *i - 1; //rewind one due to over read in while loop
-	token.value = string.copy_str(); //TODO: leaks currently
+	token.value = string.copy_str(mem); //TODO: leaks currently
 	return token;
 }
 
-fn Token! tokenize_number(String input, int* i)
+fn Token? tokenize_number(String input, int* i)
 {
 	Token token = {};
 	DString number;
@@ -98,7 +96,7 @@ fn Token! tokenize_number(String input, int* i)
 
 	token.type = INTEGER;
 
-	if (!input[*i].is_digit()) return TokensError.INVALID_NUMBER_PARSED?;
+	if (!input[*i].is_digit()) return INVALID_NUMBER_PARSED?;
 
 	while (*i < input.len && (input[*i].is_digit() || input[*i] == '.'))
 	{
@@ -109,7 +107,7 @@ fn Token! tokenize_number(String input, int* i)
 		number.append(input[*i]);
 		*i = *i + 1;
 	}
-	token.value = number.copy_str(); //TODO: leaks currently
+	token.value = number.copy_str(mem); //TODO: leaks currently
 	return token;
 }
 
@@ -127,7 +125,7 @@ fn Tokens lexer(String input)
 				new.append(c);
 			}
 		}
-		input = new.copy_str();
+		input = new.copy_str(mem);
 	}
 
 	Tokens tokens = {.len = 0};
@@ -202,7 +200,7 @@ fn Tokens lexer(String input)
 		i++;
 	}
 
-	tokens.push(Token {.type = END, .value = "END"})!!;
+	tokens.push((Token){.type = END, .value = "END"})!!;
 
 	return tokens;
 }

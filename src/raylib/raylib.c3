@@ -97,7 +97,7 @@ struct RenderTexture {
 }
 
 // RenderTexture2D, same as RenderTexture
-def RenderTexture2D = RenderTexture ;
+alias RenderTexture2D = RenderTexture;
 
 struct Color {
     char r;        // Color red value
@@ -115,7 +115,7 @@ struct Texture {
 }
 
 // Texture2D, same as Texture
-def Texture2D = Texture;
+alias Texture2D = Texture;
 
 // Font, font texture and GlyphInfo array data
 struct Font {
@@ -174,7 +174,7 @@ struct Vector4 {
 }
 
 // Quaternion, 4 components (Vector4 alias)
-def Quaternion = Vector4;
+alias Quaternion = Vector4;
 
 // Keyboard keys (US keyboard layout)
 // NOTE: Use GetKeyPressed() to allow redefining

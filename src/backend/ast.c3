@@ -39,21 +39,18 @@ struct ASTNode {
 		}
 		struct function {
 			String symbol;
-			List(<ASTNode*>) args;
+			List{ASTNode*} args;
 		}
 	}
 }
 
-fault ParserFault {
-	TOKEN_TYPE_MISMATCH,
-	TOKEN_OUT_OF_BOUNDS,
-	TOKEN_OUT_OF_BOUNDS_PEEK,
-	TOKEN_INVALID_OPERATION,
-	EVALUATE_UNREACHABLE,
-	NONPAIRED_PAREN,
-	UNEXPECTED_TOKEN,
-}
-
+faultdef TOKEN_TYPE_MISMATCH;
+faultdef TOKEN_OUT_OF_BOUNDS;
+faultdef TOKEN_OUT_OF_BOUNDS_PEEK;
+faultdef TOKEN_INVALID_OPERATION;
+faultdef EVALUATE_UNREACHABLE;
+faultdef NONPAIRED_PAREN;
+faultdef UNEXPECTED_TOKEN;
 
 
 fn ASTNode* node_init_integer(int128 value)
@@ -96,7 +93,7 @@ fn ASTNode* node_init_function(String symbol)
 	ASTNode* node = mem::new(ASTNode);
 	node.type = NODE_FUNCTION;
 	node.function.symbol = symbol;
-	node.function.args.new_init();
+	node.function.args.init(mem);
 	return node;
 }
 fn void ASTNode.free_ast(&self)
@@ -145,8 +142,8 @@ fn bool ASTNode.is_floating(&self)
 	}
 	else if (self.type == NODE_FUNCTION)
 	{
-		List(<int128>) args_evaluated;
-		args_evaluated.new_init();
+		List{int128} args_evaluated;
+		args_evaluated.init(mem);
 		defer(args_evaluated.free());
 		if (self.function.args.len() > 0) //if we have args, evaluate them
 		{
@@ -157,7 +154,7 @@ fn bool ASTNode.is_floating(&self)
 				args_evaluated.push(arg.evaluate()!!);
 			}
 		}
-		return calc_functions::is_function_floating(<int128>)(self.function.symbol, ...args_evaluated.array_view())!!;
+		return calc_functions::is_function_floating{int128}(self.function.symbol, ...args_evaluated.array_view())!!;
 	}
 	return false;
 }
@@ -173,20 +170,20 @@ fn Token Parser.get_current_token(&self)
 	return self.tokens.get_slice()[self.current];
 }
 
-fn void! Parser.advance(&self)
+fn void? Parser.advance(&self)
 {
-	if (self.current >= self.tokens.len - 1) return ParserFault.TOKEN_OUT_OF_BOUNDS?;
+	if (self.current >= self.tokens.len - 1) return TOKEN_OUT_OF_BOUNDS?;
 	self.current++;
 }
 
-fn Token! Parser.peek(&self)
+fn Token? Parser.peek(&self)
 {
-	if (self.current + 1 >= self.tokens.len - 1) return ParserFault.TOKEN_OUT_OF_BOUNDS_PEEK?;
+	if (self.current + 1 >= self.tokens.len - 1) return TOKEN_OUT_OF_BOUNDS_PEEK?;
 	return self.tokens.get_slice()[self.current+1];
 }
 
 
-fn ASTNode*! Parser.parse_primary(&self)
+fn ASTNode*? Parser.parse_primary(&self)
 {
 	Token token = self.get_current_token();
 
@@ -209,7 +206,7 @@ fn ASTNode*! Parser.parse_primary(&self)
 		ASTNode* expression = self.parse_AS()!; //solve inner expression by starting recursion over
 		if (self.get_current_token().type != CLOSE_PAREN && self.get_current_token().type != COMMA)
 		{
-			return ParserFault.NONPAIRED_PAREN?;	
+			return NONPAIRED_PAREN?;	
 		}
 	
 		if (self.get_current_token().type != COMMA) //only advance if not a comma. Function code will advance
@@ -243,10 +240,10 @@ fn ASTNode*! Parser.parse_primary(&self)
 		return func_node;
 	}
 	
-	return ParserFault.UNEXPECTED_TOKEN?;
+	return UNEXPECTED_TOKEN?;
 }
 
-fn ASTNode*! Parser.parse_Ex(&self)
+fn ASTNode*? Parser.parse_Ex(&self)
 {
 	ASTNode* lhs = self.parse_primary()!;
 
@@ -262,7 +259,7 @@ fn ASTNode*! Parser.parse_Ex(&self)
 	return lhs;
 }
 
-fn ASTNode*! Parser.parse_MD(&self)
+fn ASTNode*? Parser.parse_MD(&self)
 {
 	ASTNode* lhs = self.parse_Ex()!;
 
@@ -280,7 +277,7 @@ fn ASTNode*! Parser.parse_MD(&self)
 	return lhs;
 }
 
-fn ASTNode*! Parser.parse_AS(&self)
+fn ASTNode*? Parser.parse_AS(&self)
 {
 	ASTNode* lhs = self.parse_MD()!;
 
@@ -297,7 +294,7 @@ fn ASTNode*! Parser.parse_AS(&self)
 	return lhs;
 }
 
-fn ASTNode*! Parser.parse(&self)
+fn ASTNode*? Parser.parse(&self)
 {
 	ASTNode* result = self.parse_AS()!; //start the chain
 	return result;
@@ -346,7 +343,7 @@ fn void ASTNode.print(&self)
 			case OP_SUB: io::printf("-");
 			case OP_DIVIDE: io::printf("/");
 			case OP_MULT: io::printf("*");
-			case OP_MOD: io::printf("%");
+			case OP_MOD: io::printf("%%");
 			case OP_POW: io::printf("^");
 			default: return;
 		}
@@ -378,7 +375,7 @@ fn void ASTNode.print(&self)
 	}
 }
 
-fn int128! ASTNode.evaluate(&self)
+fn int128? ASTNode.evaluate(&self)
 {
 	if (self.type == NODE_INTEGER) {
 		return self.value;
@@ -407,7 +404,7 @@ fn int128! ASTNode.evaluate(&self)
 			case OP_MULT: return lhs * rhs;
 			case OP_MOD: return lhs % rhs;
 			case OP_POW: return i128pow(lhs,rhs);
-			default: return ParserFault.UNEXPECTED_TOKEN?;
+			default: return UNEXPECTED_TOKEN?;
 		}
 	}
 	else if (self.type == NODE_UNOP) {
@@ -415,14 +412,14 @@ fn int128! ASTNode.evaluate(&self)
 		switch (self.unop.type)
 		{
 			case OP_NEGATE: return -1 * rhs;
-			default: return ParserFault.UNEXPECTED_TOKEN?;
+			default: return UNEXPECTED_TOKEN?;
 		}
 	}
 
 	else if (self.type == NODE_FUNCTION)
 	{
-		List(<int128>) args_evaluated;
-		args_evaluated.new_init();
+		List{int128} args_evaluated;
+		args_evaluated.init(mem);
 		defer(args_evaluated.free());
 		if (self.function.args.len() > 0) //if we have args, evaluate them
 		{
@@ -433,13 +430,13 @@ fn int128! ASTNode.evaluate(&self)
 
 		}
 
-		return calc_functions::call_function(<int128>)(self.function.symbol, ...args_evaluated.array_view());
+		return calc_functions::call_function{int128}(self.function.symbol, ...args_evaluated.array_view());
 	}
 
-	return ParserFault.EVALUATE_UNREACHABLE?;
+	return EVALUATE_UNREACHABLE?;
 }
 
-fn double! ASTNode.evaluatef(&self)
+fn double? ASTNode.evaluatef(&self)
 {
 	if (self.type == NODE_INTEGER) {
 		return (double)self.value;
@@ -460,7 +457,7 @@ fn double! ASTNode.evaluatef(&self)
 			case OP_MULT: return lhs * rhs;
 			case OP_MOD: return lhs % rhs;
 			case OP_POW: return fpow(lhs,rhs);
-			default: return ParserFault.UNEXPECTED_TOKEN?;
+			default: return UNEXPECTED_TOKEN?;
 		}
 	}
 	else if (self.type == NODE_UNOP) {
@@ -468,14 +465,14 @@ fn double! ASTNode.evaluatef(&self)
 		switch (self.unop.type)
 		{
 			case OP_NEGATE: return -1 * rhs;
-			default: return ParserFault.UNEXPECTED_TOKEN?;
+			default: return UNEXPECTED_TOKEN?;
 		}
 	}
 	else if (self.type == NODE_FUNCTION)
 	{
 		//get the function table
-		List(<double>) args_evaluated;
-		args_evaluated.new_init();
+		List{double} args_evaluated;
+		args_evaluated.init(mem);
 		defer(args_evaluated.free());
 		if (self.function.args.len() > 0) //if we have args, evaluate them
 		{
@@ -486,9 +483,9 @@ fn double! ASTNode.evaluatef(&self)
 
 		}
 
-		return calc_functions::call_function(<double>)(self.function.symbol, ...args_evaluated.array_view());
+		return calc_functions::call_function{double}(self.function.symbol, ...args_evaluated.array_view());
 
 	}
 
-	return ParserFault.EVALUATE_UNREACHABLE?;
+	return EVALUATE_UNREACHABLE?;
 }

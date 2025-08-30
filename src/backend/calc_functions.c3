@@ -1,11 +1,7 @@
-module calc_functions(<Type>);
+module calc_functions {Type};
 
 import std::math;
-
-fault FunctionFault {
-	INVALID_FUNCTION_SYMBOL,
-	INCORRECT_ARG_COUNT,
-}
+import calc_faults;
 
 fn int128 i128pow(int128 base, int128 exp)
 {
@@ -20,13 +16,13 @@ fn int128 i128pow(int128 base, int128 exp)
 	return result;
 }
 
-fn bool! is_function_floating(String symbol, Type... args)
+fn bool? is_function_floating(String symbol, Type... args)
 {
 	switch(symbol)
 	{
 		case "sqrt":
 		{
-			if (args.len != 1) return FunctionFault.INCORRECT_ARG_COUNT?;
+			if (args.len != 1) return calc_faults::INCORRECT_ARG_COUNT?;
 			Type result = sqrt(args[0]);
 			if (result * result != args[0]) return true;
 		}
@@ -36,7 +32,7 @@ fn bool! is_function_floating(String symbol, Type... args)
 		}
 		case "log":
 		{
-			if (args.len != 2) return FunctionFault.INCORRECT_ARG_COUNT?;
+			if (args.len != 2) return calc_faults::INCORRECT_ARG_COUNT?;
 			Type result = log(args[0],args[1]);
 			if (i128pow((int128)args[1],(int128)result) != args[0]) return true;
 		}
@@ -56,64 +52,64 @@ fn bool! is_function_floating(String symbol, Type... args)
 	return false;
 }
 
-fn Type! call_function(String symbol, Type... args)
+fn Type? call_function(String symbol, Type... args)
 {
 	switch(symbol)
 	{
 		case "sqrt": 
 		{
-			if (args.len != 1) return FunctionFault.INCORRECT_ARG_COUNT?;
+			if (args.len != 1) return calc_faults::INCORRECT_ARG_COUNT?;
 			return sqrt(args[0]);
 		}
 		case "abs":
 		{
-			if (args.len != 1) return FunctionFault.INCORRECT_ARG_COUNT?;
+			if (args.len != 1) return calc_faults::INCORRECT_ARG_COUNT?;
 			return abs(args[0]);
 		}
 		case "log":
 		{
-			if (args.len != 2) return FunctionFault.INCORRECT_ARG_COUNT?;
+			if (args.len != 2) return calc_faults::INCORRECT_ARG_COUNT?;
 			return log(args[0],args[1]);
 		}
 		case "sin":
 		{
-			if (args.len != 1) return FunctionFault.INCORRECT_ARG_COUNT?;
+			if (args.len != 1) return calc_faults::INCORRECT_ARG_COUNT?;
 			return sin(args[0]);
 		}
 		case "cos":
 		{
-			if (args.len != 1) return FunctionFault.INCORRECT_ARG_COUNT?;
+			if (args.len != 1) return calc_faults::INCORRECT_ARG_COUNT?;
 			return cos(args[0]);
 		}
 		case "tan":
 		{
-			if (args.len != 1) return FunctionFault.INCORRECT_ARG_COUNT?;
+			if (args.len != 1) return calc_faults::INCORRECT_ARG_COUNT?;
 			return tan(args[0]);
 		}
 		case "asin":
 		{
-			if (args.len != 1) return FunctionFault.INCORRECT_ARG_COUNT?;
+			if (args.len != 1) return calc_faults::INCORRECT_ARG_COUNT?;
 			return asin(args[0]);
 		}
 		case "acos":
 		{
-			if (args.len != 1) return FunctionFault.INCORRECT_ARG_COUNT?;
+			if (args.len != 1) return calc_faults::INCORRECT_ARG_COUNT?;
 			return acos(args[0]);
 		}
 		case "atan":
 		{
-			if (args.len != 1) return FunctionFault.INCORRECT_ARG_COUNT?;
+			if (args.len != 1) return calc_faults::INCORRECT_ARG_COUNT?;
 			return atan(args[0]);
 		}
 		case "deg_to_rad":
 		{
-			if (args.len != 1) return FunctionFault.INCORRECT_ARG_COUNT?;
+			if (args.len != 1) return calc_faults::INCORRECT_ARG_COUNT?;
 			return deg_to_rad(args[0]);
 		}
 
 	}
 
-	return FunctionFault.INVALID_FUNCTION_SYMBOL?;
+	return calc_faults::INVALID_FUNCTION_SYMBOL?;
 }
 
 fn Type sqrt(Type x)

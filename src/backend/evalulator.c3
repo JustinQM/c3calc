@@ -38,10 +38,10 @@ fn Result evaluate(String f, bool debug = false)
 	defer(ast.free_ast());
 	if (ast.is_floating())
 	{
-		return Result{.is_floating = true, .fvalue = ast.evaluatef()!!};
+		return (Result){.is_floating = true, .fvalue = ast.evaluatef()!!};
 	}
 	else
 	{
-		return Result{.is_floating = false, .value = ast.evaluate()!!};
+		return (Result){.is_floating = false, .value = ast.evaluate()!!};
 	}
 }
